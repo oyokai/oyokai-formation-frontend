@@ -1,3 +1,107 @@
+// Configuration API
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://localhost:3000/api' 
+    : 'https://api.oyokai.fr/api'; // URL de production (à configurer plus tard)
+
+// Fonction utilitaire pour les appels API
+async function apiCall(endpoint, options = {}) {
+    const url = `${API_BASE_URL}${endpoint}`;
+    const config = {
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        },
+        ...options
+    };
+
+    try {
+        const response = await fetch(url, config);
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || `Erreur ${response.status}`);
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('Erreur API:', error);
+        throw error;
+    }
+}
+
+// Fonction pour afficher les notifications
+function showNotification(message, type = 'success') {
+    // Supprimer les anciennes notifications
+    const oldNotif = document.querySelector('.notification');
+    if (oldNotif) oldNotif.remove();
+
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span class="notification-icon">${type === 'success' ? '✅' : '❌'}</span>
+            <span class="notification-message">${message}</span>
+            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+        </div>
+    `;
+    
+    // Styles pour la notification
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        background: ${type === 'success' ? '#10b981' : '#ef4444'};
+        color: white;
+        padding: 16px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        max-width: 400px;
+        animation: slideIn 0.3s ease-out;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-suppression après 5 secondes
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 5000);
+}
+
+// Ajouter les styles CSS pour les notifications
+const notificationStyles = document.createElement('style');
+notificationStyles.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+    .notification-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .notification-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 0;
+        margin-left: auto;
+    }
+    .notification-close:hover {
+        opacity: 0.7;
+    }
+`;
+document.head.appendChild(notificationStyles);
+
 // Animation au scroll
 const observerOptions = {
     threshold: 0.1,
@@ -162,27 +266,151 @@ if (ratingStars) {
     });
 }
 
-// Gestion du formulaire de témoignage
+// Gestion du formulaire de témoignage avec API
 const testimonialForm = document.querySelector('.testimonial-form');
 if (testimonialForm) {
-    testimonialForm.addEventListener('submit', function(e) {
+    testimonialForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
+        // Vérifier la notation
         const activeStars = document.querySelectorAll('.rating-star.active').length;
         if (activeStars === 0) {
-            alert('Veuillez donner une note en cliquant sur les étoiles.');
+            showNotification('Veuillez donner une note en cliquant sur les étoiles.', 'error');
             return;
         }
         
-        alert('Merci pour votre témoignage ! Il sera publié après validation.');
-        this.reset();
+        // Récupérer les données du formulaire - AMÉLIORATION
+        const inputs = this.querySelectorAll('input');
+        const select = this.querySelector('select');
+        const textarea = this.querySelector('textarea');
         
-        // Réinitialiser les étoiles
-        document.querySelectorAll('.rating-star').forEach(star => {
-            star.classList.remove('active');
-            star.style.color = 'rgba(255,255,255,0.3)';
-        });
+        const firstName = inputs[0].value.trim(); // Premier input
+        const lastName = inputs[1].value.trim();  // Deuxième input
+        const formation = select.value;
+        const message = textarea.value.trim();
+        
+        console.log('Données récupérées:', { firstName, lastName, formation, message, rating: activeStars });
+        
+        // Validation côté client
+        if (!firstName || !lastName || !formation || !message) {
+            showNotification('Veuillez remplir tous les champs.', 'error');
+            return;
+        }
+        
+        // Préparer les données pour l'API
+        const testimonialData = {
+            first_name: firstName,
+            last_name: lastName,
+            formation: formation,
+            rating: activeStars,
+            message: message
+        };
+        
+        console.log('Données envoyées à l\'API:', testimonialData);
+        
+        // Désactiver le bouton pendant l'envoi
+        const submitBtn = this.querySelector('.submit-testimonial');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Envoi en cours...';
+        
+        try {
+            // Appel à l'API
+            const response = await apiCall('/testimonials', {
+                method: 'POST',
+                body: JSON.stringify(testimonialData)
+            });
+            
+            if (response.success) {
+                showNotification('Merci pour votre témoignage ! Il sera publié après validation.', 'success');
+                this.reset();
+                
+                // Réinitialiser les étoiles
+                document.querySelectorAll('.rating-star').forEach(star => {
+                    star.classList.remove('active');
+                    star.style.color = 'rgba(255,255,255,0.3)';
+                });
+            }
+        } catch (error) {
+            showNotification('Erreur lors de l\'envoi du témoignage. Veuillez réessayer.', 'error');
+            console.error('Erreur témoignage:', error);
+        } finally {
+            // Réactiver le bouton
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
     });
+}
+
+// Gestion du formulaire de contact avec API
+const contactForm = document.querySelector('.contact-form form');
+if (contactForm) {
+    contactForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Récupérer les données du formulaire
+        const formData = new FormData(this);
+        const contactData = {
+            name: formData.get('nom') || this.querySelector('#nom').value,
+            email: formData.get('email') || this.querySelector('#email').value,
+            formation_interest: formData.get('formation') || this.querySelector('#formation').value,
+            message: formData.get('message') || this.querySelector('#message').value
+        };
+        
+        // Validation côté client
+        if (!contactData.name || !contactData.email || !contactData.message) {
+            showNotification('Veuillez remplir tous les champs obligatoires.', 'error');
+            return;
+        }
+        
+        // Validation email simple
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(contactData.email)) {
+            showNotification('Veuillez saisir une adresse email valide.', 'error');
+            return;
+        }
+        
+        // Désactiver le bouton pendant l'envoi
+        const submitBtn = this.querySelector('.submit-btn');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Envoi en cours...';
+        
+        try {
+            // Appel à l'API
+            const response = await apiCall('/contact', {
+                method: 'POST',
+                body: JSON.stringify(contactData)
+            });
+            
+            if (response.success) {
+                showNotification('Votre message a été envoyé avec succès ! Nous vous recontacterons rapidement.', 'success');
+                this.reset();
+            }
+        } catch (error) {
+            showNotification('Erreur lors de l\'envoi du message. Veuillez réessayer.', 'error');
+            console.error('Erreur contact:', error);
+        } finally {
+            // Réactiver le bouton
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
+    });
+}
+
+// Charger les témoignages approuvés depuis l'API
+async function loadTestimonials() {
+    try {
+        const response = await apiCall('/testimonials/approved');
+        
+        if (response.success && response.data.length > 0) {
+            // TODO: Intégrer les vrais témoignages dans le carrousel
+            console.log('Témoignages chargés:', response.data);
+        }
+    } catch (error) {
+        console.error('Erreur lors du chargement des témoignages:', error);
+        // Continuer avec les témoignages statiques en cas d'erreur
+    }
 }
 
 // Animation des statistiques
@@ -219,61 +447,29 @@ if (aboutSection) {
     statsObserver.observe(aboutSection);
 }
 
-// Gestion du formulaire de contact
-const contactForm = document.querySelector('.contact-form form');
-if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        alert('Merci pour votre message ! Nous vous recontacterons bientôt.');
-        this.reset();
-    });
-}
-
 // Charger le logo
-async function loadLogo() {
+function loadLogo() {
     const logoImg = document.getElementById('logo-img');
     if (!logoImg) return;
     
-    try {
-        // Essayer les noms de fichiers les plus probables
-        const fileNames = [
-            'images/logo.png',
-            'images/logo.jpg', 
-            'images/logo.jpeg',
-            'images/oyokai.png',
-            'images/oyokai.jpg'
-        ];
-        
-        for (const fileName of fileNames) {
-            try {
-                // Tester si l'image existe
-                const img = new Image();
-                img.onload = () => {
-                    logoImg.src = fileName;
-                    console.log(`Logo chargé avec succès: ${fileName}`);
-                };
-                img.onerror = () => {
-                    throw new Error(`Impossible de charger: ${fileName}`);
-                };
-                img.src = fileName;
-                return; // Sortir si succès
-            } catch (error) {
-                console.log(`Échec de chargement: ${fileName}`);
-                continue;
-            }
-        }
-        
-        // Si aucun fichier n'a été trouvé, afficher le texte
-        throw new Error('Aucun fichier logo trouvé');
-        
-    } catch (error) {
+    logoImg.onerror = function() {
         console.log('Logo non trouvé, utilisation du texte par défaut');
         const logoContainer = document.querySelector('.logo');
         if (logoContainer) {
             logoContainer.innerHTML = '<span style="font-size: 2rem; font-weight: bold; color: white;">OYOKAÏ</span>';
         }
-    }
+    };
+    
+    logoImg.onload = function() {
+        console.log('Logo chargé avec succès!');
+    };
 }
 
-// Charger le logo au démarrage
-document.addEventListener('DOMContentLoaded', loadLogo);
+// Initialisation au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    loadLogo();
+    loadTestimonials();
+    
+    // Log pour vérifier la connexion API
+    console.log('🔗 API configurée sur:', API_BASE_URL);
+});
