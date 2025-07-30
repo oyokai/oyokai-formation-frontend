@@ -286,20 +286,8 @@ if (testimonialForm) {
         
         const firstName = inputs[0].value.trim(); // Premier input
         const lastName = inputs[1].value.trim();  // Deuxième input
-        const formationValue = select.value;
+        const formation = select.value;
         const message = textarea.value.trim();
-
-        // Mapper les valeurs courtes vers les vraies valeurs
-        const formationMap = {
-            'management': 'Management et Leadership',
-            'communication': 'Communication Professionnelle', 
-            'digital': 'Transformation Digitale',
-            'projet': 'Gestion de Projet',
-            'personnel': 'Développement Personnel',
-            'mesure': 'Formation sur Mesure'
-        };
-
-        const formation = formationMap[formationValue] || formationValue;
         
         console.log('Données récupérées:', { firstName, lastName, formation, message, rating: activeStars });
         
@@ -425,74 +413,6 @@ async function loadTestimonials() {
     }
 }
 
-// Charger les formations depuis l'API et mettre à jour le DOM
-async function loadFormations() {
-    try {
-        const response = await apiCall('/formations');
-        
-        if (response.success && response.data.length > 0) {
-            updateFormationsGrid(response.data);
-            updateFormationSelects(response.data);
-            console.log('Formations chargées:', response.data.length);
-        }
-    } catch (error) {
-        console.error('Erreur lors du chargement des formations:', error);
-        // Garder les formations statiques en cas d'erreur
-    }
-}
-
-// Mettre à jour la grille des formations
-function updateFormationsGrid(formations) {
-    const formationsGrid = document.querySelector('.formations-grid');
-    if (!formationsGrid) return;
-    
-    // Créer le HTML pour chaque formation
-    const formationsHTML = formations.map(formation => `
-        <div class="formation-card fade-in">
-            <div class="card-content">
-                <h3>${formation.title}</h3>
-                <p>${formation.short_description}</p>
-                <div class="card-footer">
-                    <span class="duration">${formation.duration}</span>
-                    <span class="price">${formation.price_display}</span>
-                </div>
-            </div>
-        </div>
-    `).join('');
-    
-    // Remplacer le contenu
-    formationsGrid.innerHTML = formationsHTML;
-    
-    // Réactiver les animations
-    const newCards = formationsGrid.querySelectorAll('.fade-in');
-    newCards.forEach(card => {
-        observer.observe(card);
-    });
-}
-
-// Mettre à jour les listes déroulantes des formulaires
-function updateFormationSelects(formations) {
-    const selects = document.querySelectorAll('select[name="formation"], select[name="formation_interest"]');
-    
-    selects.forEach(select => {
-        // Garder la première option (vide)
-        const firstOption = select.querySelector('option[value=""]');
-        select.innerHTML = '';
-        
-        if (firstOption) {
-            select.appendChild(firstOption);
-        }
-        
-        // Ajouter les formations depuis l'API
-        formations.forEach(formation => {
-            const option = document.createElement('option');
-            option.value = formation.title;
-            option.textContent = formation.title;
-            select.appendChild(option);
-        });
-    });
-}
-
 // Animation des statistiques
 const animateStats = () => {
     const stats = document.querySelectorAll('.stat-number');
@@ -549,7 +469,6 @@ function loadLogo() {
 document.addEventListener('DOMContentLoaded', function() {
     loadLogo();
     loadTestimonials();
-    loadFormations(); // Nouveau !
     
     // Log pour vérifier la connexion API
     console.log('🔗 API configurée sur:', API_BASE_URL);
