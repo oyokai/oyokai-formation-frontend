@@ -1,7 +1,7 @@
 // Configuration API
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    ? 'http://localhost:3000/api' 
-    : 'https://api.oyokai.fr/api'; // URL de production (à configurer plus tard)
+cconst API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+? 'http://localhost:3000/api' 
+: 'https://oyokai-formation-backend-production.up.railway.app/api';
 
 // Fonction utilitaire pour les appels API
 async function apiCall(endpoint, options = {}) {
