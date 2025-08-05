@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - OYOKAÏ Formation</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <!-- LOGIN FORM -->
+    <div id="loginContainer" class="login-container">
+        <form id="loginForm" class="login-form">
+            <div class="login-header">
+                <h2>Administration</h2>
+                <p>OYOKAÏ Formation</p>
+            </div>
+            
+            <div id="loginAlert"></div>
+            
+            <div class="form-group">
+                <label for="username">Nom d'utilisateur ou Email</label>
+                <input type="text" id="username" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" class="form-control" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <span id="loginSpinner" class="spinner" style="display: none;"></span>
+                Se connecter
+            </button>
+        </form>
+    </div>
+
+    <!-- INTERFACE ADMIN -->
+    <div id="adminContainer" class="admin-container" style="display: none;">
+        <!-- SIDEBAR -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>OYOKAÏ Admin</h2>
+                <p id="userWelcome">Bienvenue</p>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <button class="menu-item active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </button>
+                <button class="menu-item" data-section="formations">
+                    <i class="fas fa-graduation-cap"></i> Formations
+                </button>
+                <button class="menu-item" data-section="testimonials">
+                    <i class="fas fa-star"></i> Témoignages
+                </button>
+                <button class="menu-item" data-section="contacts">
+                    <i class="fas fa-envelope"></i> Contacts
+                </button>
+                <button class="menu-item" data-section="users">
+                    <i class="fas fa-users"></i> Utilisateurs
+                </button>
+                <button class="menu-item" data-section="stats">
+                    <i class="fas fa-chart-bar"></i> Statistiques
+                </button>
+            </nav>
+        </div>
+
+        <!-- CONTENU PRINCIPAL -->
+        <div class="main-content">
+            <!-- HEADER -->
+            <div class="content-header">
+                <h1 id="pageTitle">Dashboard</h1>
+                <div class="user-info">
+                    <span id="currentUser">Admin</span>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </button>
+                </div>
+            </div>
+
+            <!-- DASHBOARD -->
+            <div id="dashboard" class="section active">
+                <div class="dashboard-grid">
+                    <div class="stat-card formations">
+                        <div class="stat-number" id="totalFormations">-</div>
+                        <div class="stat-label">Formations</div>
+                    </div>
+                    <div class="stat-card testimonials">
+                        <div class="stat-number" id="pendingTestimonials">-</div>
+                        <div class="stat-label">Témoignages en attente</div>
+                    </div>
+                    <div class="stat-card contacts">
+                        <div class="stat-number" id="unreadContacts">-</div>
+                        <div class="stat-label">Messages non lus</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <h3>Derniers Contacts</h3>
+                    </div>
+                    <div class="section-content">
+                        <div id="recentContacts" class="loading">
+                            <div class="spinner"></div>
+                            Chargement...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORMATIONS -->
+            <div id="formations" class="section">
+                <div class="section-header">
+                    <h3>Gestion des Formations</h3>
+                    <button class="btn btn-primary" onclick="openFormationModal()">
+                        <i class="fas fa-plus"></i> Nouvelle Formation
+                    </button>
+                </div>
+                <div class="section-content">
+                    <div class="form-group" style="max-width: 200px; margin-bottom: 20px;">
+                        <select id="formationFilter" class="form-control" onchange="loadFormations()">
+                            <option value="all">Toutes les formations</option>
+                            <option value="active">Actives uniquement</option>
+                            <option value="inactive">Inactives uniquement</option>
+                        </select>
+                    </div>
+                    <div id="formationsList" class="loading">
+                        <div class="spinner"></div>
+                        Chargement...
+                    </div>
+                </div>
+            </div>
+
+            <!-- TÉMOIGNAGES -->
+            <div id="testimonials" class="section">
+                <div class="section-header">
+                    <h3>Gestion des Témoignages</h3>
+                </div>
+                <div class="section-content">
+                    <div id="testimonialsList" class="loading">
+                        <div class="spinner"></div>
+                        Chargement...
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTACTS -->
+            <div id="contacts" class="section">
+                <div class="section-header">
+                    <h3>Messages de Contact</h3>
+                </div>
+                <div class="section-content">
+                    <div id="contactsList" class="loading">
+                        <div class="spinner"></div>
+                        Chargement...
+                    </div>
+                </div>
+            </div>
+
+            <!-- UTILISATEURS -->
+            <div id="users" class="section">
+                <div class="section-header">
+                    <h3>Utilisateurs Administrateurs</h3>
+                    <button class="btn btn-primary" onclick="openUserModal()">
+                        <i class="fas fa-plus"></i> Nouvel Utilisateur
+                    </button>
+                </div>
+                <div class="section-content">
+                    <div id="usersList" class="loading">
+                        <div class="spinner"></div>
+                        Chargement...
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATISTIQUES -->
+            <div id="stats" class="section">
+                <div class="section-header">
+                    <h3>Statistiques Avancées</h3>
+                    <select id="statsPeriod" class="form-control" style="width: auto;" onchange="loadStats()">
+                        <option value="7">7 derniers jours</option>
+                        <option value="30" selected>30 derniers jours</option>
+                        <option value="90">90 derniers jours</option>
+                    </select>
+                </div>
+                <div class="section-content">
+                    <div id="statsContent" class="loading">
+                        <div class="spinner"></div>
+                        Chargement...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FORMATION -->
+    <div id="formationModal" class="modal">
+        <div class="modal-content">
+            <h3 id="formationModalTitle">Nouvelle Formation</h3>
+            <form id="formationForm">
+                <input type="hidden" id="formationId">
+                
+                <div class="form-group">
+                    <label for="formationTitle">Titre *</label>
+                    <input type="text" id="formationTitle" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="formationSlug">Slug (URL) *</label>
+                    <input type="text" id="formationSlug" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="formationCategory">Catégorie</label>
+                    <input type="text" id="formationCategory" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="formationDuration">Durée</label>
+                    <input type="text" id="formationDuration" class="form-control" placeholder="ex: 2 jours">
+                </div>
+                
+                <div class="form-group">
+                    <label for="formationPrice">Prix (affichage)</label>
+                    <input type="text" id="formationPrice" class="form-control" placeholder="ex: Sur devis">
+                </div>
+                
+                <div class="form-group">
+                    <label for="formationShortDesc">Description courte *</label>
+                    <textarea id="formationShortDesc" class="form-control" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="formationFullDesc">Description complète</label>
+                    <textarea id="formationFullDesc" class="form-control" rows="6"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="formationObjectives">Objectifs</label>
+                    <textarea id="formationObjectives" class="form-control"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="formationTargetAudience">Public cible</label>
+                    <textarea id="formationTargetAudience" class="form-control"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="formationPrerequisites">Prérequis</label>
+                    <textarea id="formationPrerequisites" class="form-control"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="formationSortOrder">Ordre d'affichage</label>
+                    <input type="number" id="formationSortOrder" class="form-control" value="0">
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="formationActive" checked> Formation active
+                    </label>
+                </div>
+                
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeFormationModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL UTILISATEUR -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <h3>Nouvel Utilisateur Administrateur</h3>
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="userUsername">Nom d'utilisateur *</label>
+                    <input type="text" id="userUsername" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="userEmail">Email *</label>
+                    <input type="email" id="userEmail" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="userPassword">Mot de passe *</label>
+                    <input type="password" id="userPassword" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="userFirstName">Prénom</label>
+                    <input type="text" id="userFirstName" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="userLastName">Nom</label>
+                    <input type="text" id="userLastName" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="userRole">Rôle</label>
+                    <select id="userRole" class="form-control">
+                        <option value="admin">Administrateur</option>
+                        <option value="moderator">Modérateur</option>
+                    </select>
+                </div>
+                
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Créer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
