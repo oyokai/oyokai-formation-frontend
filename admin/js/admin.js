@@ -451,13 +451,26 @@ async function loadTestimonials() {
                                     <td>${new Date(testimonial.created_at).toLocaleDateString('fr-FR')}</td>
                                     <td>
                                         ${testimonial.status === 'pending' ? `
-                                            <button class="btn btn-success btn-sm" onclick="approveTestimonial(${testimonial.id})">
+                                            <button class="btn btn-success btn-sm" onclick="approveTestimonial(${testimonial.id})" title="Approuver">
                                                 <i class="fas fa-check"></i>
                                             </button>
-                                            <button class="btn btn-danger btn-sm" onclick="rejectTestimonial(${testimonial.id})">
+                                            <button class="btn btn-danger btn-sm" onclick="rejectTestimonial(${testimonial.id})" title="Rejeter">
                                                 <i class="fas fa-times"></i>
                                             </button>
-                                        ` : '-'}
+                                        ` : ''}
+                                        ${testimonial.status === 'approved' ? `
+                                            <button class="btn btn-warning btn-sm" onclick="toggleTestimonial(${testimonial.id})" title="Désactiver">
+                                                <i class="fas fa-pause"></i>
+                                            </button>
+                                        ` : ''}
+                                        ${testimonial.status === 'rejected' ? `
+                                            <button class="btn btn-success btn-sm" onclick="toggleTestimonial(${testimonial.id})" title="Réactiver">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        ` : ''}
+                                        <button class="btn btn-danger btn-sm" onclick="deleteTestimonial(${testimonial.id}, '${testimonial.first_name} ${testimonial.last_name}')" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
                             `).join('')}
@@ -495,6 +508,36 @@ window.rejectTestimonial = async function(id) {
         }
     } catch (error) {
         console.error('Erreur rejet témoignage:', error);
+    }
+}
+
+// Fonction globale pour activer/désactiver témoignage
+window.toggleTestimonial = async function(id) {
+    try {
+        const data = await apiCall(`/admin/testimonials/${id}/toggle`, { method: 'PATCH' });
+        if (data && data.success) {
+            loadTestimonials();
+            showAlert('testimonialsAlert', data.message, 'success');
+        }
+    } catch (error) {
+        console.error('Erreur toggle témoignage:', error);
+    }
+}
+
+// Fonction globale pour supprimer témoignage
+window.deleteTestimonial = async function(id, name) {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer définitivement le témoignage de ${name} ?`)) {
+        return;
+    }
+    
+    try {
+        const data = await apiCall(`/admin/testimonials/${id}`, { method: 'DELETE' });
+        if (data && data.success) {
+            loadTestimonials();
+            showAlert('testimonialsAlert', data.message, 'success');
+        }
+    } catch (error) {
+        console.error('Erreur suppression témoignage:', error);
     }
 }
 
