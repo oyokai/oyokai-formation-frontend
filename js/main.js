@@ -152,7 +152,14 @@ const indicators = document.querySelectorAll('.indicator');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 
+// Mise à jour de la fonction updateSlider pour gérer les slides dynamiques
 function updateSlider() {
+    const slider = document.querySelector('.testimonials-slider');
+    const slides = document.querySelectorAll('.testimonials-slide');
+    const indicators = document.querySelectorAll('.indicator');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
     if (slider && slides.length > 0) {
         slider.style.transform = `translateX(-${currentSlide * 100}%)`;
         
@@ -165,6 +172,21 @@ function updateSlider() {
         if (prevBtn && nextBtn) {
             prevBtn.disabled = currentSlide === 0;
             nextBtn.disabled = currentSlide === slides.length - 1;
+            
+            // Cacher les boutons s'il n'y a qu'une seule slide
+            if (slides.length <= 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'block';
+                nextBtn.style.display = 'block';
+            }
+        }
+        
+        // Cacher les indicateurs s'il n'y a qu'une seule slide
+        const indicatorsContainer = document.querySelector('.slider-indicators');
+        if (indicatorsContainer) {
+            indicatorsContainer.style.display = slides.length <= 1 ? 'none' : 'flex';
         }
     }
 }
@@ -416,14 +438,113 @@ async function loadTestimonials() {
         const response = await apiCall('/testimonials/approved');
         
         if (response.success && response.data.length > 0) {
-            // TODO: Intégrer les vrais témoignages dans le carrousel
-            console.log('Témoignages chargés:', response.data);
+            generateTestimonialsHTML(response.data);
+            console.log('Témoignages chargés:', response.data.length);
+        } else {
+            console.log('Aucun témoignage approuvé trouvé, utilisation des témoignages par défaut');
         }
     } catch (error) {
         console.error('Erreur lors du chargement des témoignages:', error);
         // Continuer avec les témoignages statiques en cas d'erreur
     }
 }
+
+// Générer le HTML des témoignages dynamiquement
+function generateTestimonialsHTML(testimonials) {
+    const testimonialsSlider = document.querySelector('.testimonials-slider');
+    if (!testimonialsSlider) return;
+    
+    // Organiser les témoignages par slides (3 par slide)
+    const testimonialsPerSlide = 3;
+    const slides = [];
+    
+    for (let i = 0; i < testimonials.length; i += testimonialsPerSlide) {
+        slides.push(testimonials.slice(i, i + testimonialsPerSlide));
+    }
+    
+    // Si pas assez de témoignages, créer au moins une slide
+    if (slides.length === 0) return;
+    
+    // Générer le HTML pour chaque slide
+    const slidesHTML = slides.map(slide => `
+        <div class="testimonials-slide">
+            ${slide.map(testimonial => `
+                <div class="testimonial-card fade-in">
+                    <p class="testimonial-text">${escapeHtml(testimonial.message)}</p>
+                    <div class="testimonial-author">
+                        <div class="author-info">
+                            <h4>${escapeHtml(testimonial.first_name)} ${escapeHtml(testimonial.last_name)}</h4>
+                            <p class="formation">${escapeHtml(testimonial.formation)}</p>
+                            <div class="rating">
+                                ${generateStars(testimonial.rating)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `).join('');
+    
+    // Remplacer le contenu du slider
+    testimonialsSlider.innerHTML = slidesHTML;
+    
+    // Mettre à jour les indicateurs
+    updateSliderIndicators(slides.length);
+    
+    // Réinitialiser le slider
+    currentSlide = 0;
+    updateSlider();
+    
+    // Réactiver les animations pour les nouveaux éléments
+    const newCards = testimonialsSlider.querySelectorAll('.fade-in');
+    newCards.forEach(card => {
+        observer.observe(card);
+    });
+}
+
+// Générer les étoiles pour la notation
+function generateStars(rating) {
+    let starsHTML = '';
+    for (let i = 1; i <= 5; i++) {
+        starsHTML += `<span class="star">${i <= rating ? '★' : '☆'}</span>`;
+    }
+    return starsHTML;
+}
+
+// Échapper les caractères HTML pour éviter les injections
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Mettre à jour les indicateurs du slider selon le nombre de slides
+function updateSliderIndicators(slideCount) {
+    const indicatorsContainer = document.querySelector('.slider-indicators');
+    if (!indicatorsContainer) return;
+    
+    // Générer les nouveaux indicateurs
+    let indicatorsHTML = '';
+    for (let i = 0; i < slideCount; i++) {
+        indicatorsHTML += `<span class="indicator ${i === 0 ? 'active' : ''}" data-slide="${i}"></span>`;
+    }
+    
+    indicatorsContainer.innerHTML = indicatorsHTML;
+    
+    // Réattacher les event listeners
+    const indicators = indicatorsContainer.querySelectorAll('.indicator');
+    indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => goToSlide(index));
+    });
+    
+    // Mettre à jour les variables globales
+    window.slides = document.querySelectorAll('.testimonials-slide');
+}
+
+// Fonction utilitaire pour recharger les témoignages (utile pour les tests)
+window.reloadTestimonials = function() {
+    loadTestimonials();
+};
 
 // Charger les formations depuis l'API et mettre à jour le DOM
 async function loadFormations() {
