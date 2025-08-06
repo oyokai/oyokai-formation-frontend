@@ -19,10 +19,9 @@
     --text-primary: var(--oyokai-grey-dark);
     --text-secondary: var(--oyokai-grey);
     
-    /* Dégradés OYOKAÏ */
-    --gradient-primary: linear-gradient(135deg, var(--oyokai-turquoise) 0%, var(--oyokai-lime) 100%);
-    --gradient-sidebar: linear-gradient(180deg, var(--oyokai-grey-dark) 0%, var(--oyokai-grey) 100%);
-    --gradient-header: linear-gradient(90deg, var(--oyokai-turquoise-light) 0%, var(--oyokai-lime-light) 100%);
+    /* Couleurs d'interface */
+    --sidebar-bg: var(--oyokai-grey-dark);
+    --header-bg: var(--oyokai-turquoise-light);
 }
 
 /* ===== RESET & BASE ===== */
@@ -47,7 +46,7 @@ body {
 /* ===== SIDEBAR OYOKAÏ ===== */
 .sidebar {
     width: 260px;
-    background: var(--gradient-sidebar);
+    background: var(--sidebar-bg);
     color: white;
     position: fixed;
     height: 100vh;
@@ -58,7 +57,7 @@ body {
 
 .sidebar-header {
     padding: 25px 20px;
-    background: var(--gradient-primary);
+    background: var(--oyokai-turquoise);
     text-align: center;
     border-bottom: 2px solid var(--oyokai-lime);
     position: relative;
@@ -118,7 +117,7 @@ body {
 }
 
 .menu-item.active {
-    background: var(--gradient-primary);
+    background: var(--oyokai-turquoise);
     border-left-color: var(--oyokai-lime);
     padding-left: 35px;
     box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
@@ -148,7 +147,7 @@ body {
     justify-content: space-between;
     align-items: center;
     border: 2px solid transparent;
-    background: var(--gradient-header);
+    background: var(--header-bg);
     position: relative;
     overflow: hidden;
 }
@@ -160,7 +159,7 @@ body {
     left: 0;
     right: 0;
     height: 4px;
-    background: var(--gradient-primary);
+    background: var(--oyokai-turquoise);
 }
 
 .content-header h1 {
@@ -181,7 +180,7 @@ body {
 }
 
 .logout-btn {
-    background: var(--gradient-primary);
+    background: var(--oyokai-turquoise);
     color: white;
     border: none;
     padding: 10px 20px;
@@ -194,6 +193,7 @@ body {
 }
 
 .logout-btn:hover {
+    background: var(--oyokai-turquoise-dark);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(123, 211, 234, 0.4);
 }
@@ -214,7 +214,7 @@ body {
 
 .section-header {
     padding: 25px 30px;
-    background: var(--gradient-header);
+    background: var(--header-bg);
     border-bottom: 2px solid var(--oyokai-turquoise-light);
     display: flex;
     justify-content: space-between;
@@ -268,26 +268,22 @@ body {
 }
 
 .stat-card.formations::before { 
-    background: var(--gradient-primary);
+    background: var(--oyokai-turquoise);
 }
 
 .stat-card.testimonials::before { 
-    background: linear-gradient(90deg, var(--oyokai-lime) 0%, var(--oyokai-lime-dark) 100%);
+    background: var(--oyokai-lime);
 }
 
 .stat-card.contacts::before { 
-    background: linear-gradient(90deg, var(--oyokai-turquoise) 0%, var(--oyokai-turquoise-dark) 100%);
+    background: var(--oyokai-turquoise-dark);
 }
 
 .stat-number {
     font-size: 42px;
     font-weight: 800;
-    color: var(--text-primary);
+    color: var(--oyokai-turquoise);
     margin-bottom: 8px;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
 .stat-label {
@@ -317,7 +313,7 @@ th, td {
 }
 
 th {
-    background: var(--gradient-header);
+    background: var(--header-bg);
     font-weight: 700;
     color: var(--text-primary);
     font-size: 14px;
@@ -349,56 +345,61 @@ tr:last-child td {
 }
 
 .btn-primary { 
-    background: var(--gradient-primary);
+    background: var(--oyokai-turquoise);
     color: white;
     box-shadow: 0 3px 10px rgba(123, 211, 234, 0.3);
 }
 
 .btn-primary:hover { 
+    background: var(--oyokai-turquoise-dark);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(123, 211, 234, 0.4);
 }
 
 .btn-success { 
-    background: linear-gradient(135deg, var(--oyokai-lime) 0%, var(--oyokai-lime-dark) 100%);
+    background: var(--oyokai-lime);
     color: white;
     box-shadow: 0 3px 10px rgba(164, 214, 94, 0.3);
 }
 
 .btn-success:hover { 
+    background: var(--oyokai-lime-dark);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(164, 214, 94, 0.4);
 }
 
 .btn-warning { 
-    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    background: #F59E0B;
     color: white;
     box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);
 }
 
 .btn-warning:hover { 
+    background: #D97706;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
 }
 
 .btn-danger { 
-    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    background: #EF4444;
     color: white;
     box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
 }
 
 .btn-danger:hover { 
+    background: #DC2626;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
 }
 
 .btn-secondary { 
-    background: linear-gradient(135deg, var(--oyokai-grey) 0%, var(--oyokai-grey-dark) 100%);
+    background: var(--oyokai-grey);
     color: white;
     box-shadow: 0 3px 10px rgba(107, 114, 128, 0.3);
 }
 
 .btn-secondary:hover { 
+    background: var(--oyokai-grey-dark);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(107, 114, 128, 0.4);
 }
@@ -419,27 +420,27 @@ tr:last-child td {
 }
 
 .badge-success { 
-    background: linear-gradient(135deg, var(--oyokai-lime-light) 0%, var(--oyokai-lime) 100%);
+    background: var(--oyokai-lime-light);
     color: #22543D;
 }
 
 .badge-warning { 
-    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    background: #FEF3C7;
     color: #92400E;
 }
 
 .badge-danger { 
-    background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+    background: #FEE2E2;
     color: #991B1B;
 }
 
 .badge-secondary { 
-    background: linear-gradient(135deg, var(--oyokai-grey-light) 0%, #D1D5DB 100%);
+    background: var(--oyokai-grey-light);
     color: var(--oyokai-grey-dark);
 }
 
 .badge-primary {
-    background: linear-gradient(135deg, var(--oyokai-turquoise-light) 0%, var(--oyokai-turquoise) 100%);
+    background: var(--oyokai-turquoise-light);
     color: #0C4A6E;
 }
 
@@ -517,11 +518,8 @@ textarea.form-control {
     font-weight: 700;
     text-align: center;
     padding-bottom: 15px;
-    border-bottom: 3px solid var(--gradient-primary);
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    border-bottom: 3px solid var(--oyokai-turquoise);
+    color: var(--oyokai-turquoise);
 }
 
 /* ===== LOGIN FORM OYOKAÏ ===== */
@@ -530,7 +528,7 @@ textarea.form-control {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background: var(--gradient-primary);
+    background: var(--oyokai-turquoise);
     position: relative;
 }
 
@@ -570,7 +568,7 @@ textarea.form-control {
     transform: translateX(-50%);
     width: 80px;
     height: 4px;
-    background: var(--gradient-primary);
+    background: var(--oyokai-turquoise);
     border-radius: 2px;
 }
 
@@ -620,25 +618,25 @@ textarea.form-control {
 }
 
 .alert-success {
-    background: linear-gradient(135deg, rgba(164, 214, 94, 0.1) 0%, rgba(139, 196, 73, 0.1) 100%);
+    background: rgba(164, 214, 94, 0.1);
     border-left-color: var(--oyokai-lime);
     color: #22543D;
 }
 
 .alert-danger {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+    background: rgba(239, 68, 68, 0.1);
     border-left-color: #EF4444;
     color: #991B1B;
 }
 
 .alert-warning {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%);
+    background: rgba(245, 158, 11, 0.1);
     border-left-color: #F59E0B;
     color: #92400E;
 }
 
 .alert-info {
-    background: linear-gradient(135deg, rgba(123, 211, 234, 0.1) 0%, rgba(91, 197, 224, 0.1) 100%);
+    background: rgba(123, 211, 234, 0.1);
     border-left-color: var(--oyokai-turquoise);
     color: #0C4A6E;
 }
@@ -734,9 +732,6 @@ textarea.form-control {
 }
 
 .oyokai-gradient-text {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--oyokai-turquoise);
     font-weight: 700;
 }
