@@ -277,7 +277,8 @@ async function loadFormations() {
     }
 }
 
-function openFormationModal(formation = null) {
+// Fonction globale pour ouvrir le modal de formation
+window.openFormationModal = function(formation = null) {
     const modal = document.getElementById('formationModal');
     const form = document.getElementById('formationForm');
     
@@ -307,7 +308,8 @@ function openFormationModal(formation = null) {
     modal.classList.add('show');
 }
 
-function closeFormationModal() {
+// Fonction globale pour fermer le modal de formation
+window.closeFormationModal = function() {
     document.getElementById('formationModal').classList.remove('show');
 }
 
@@ -353,7 +355,8 @@ async function handleFormationSubmit(e) {
     }
 }
 
-async function editFormation(id) {
+// Fonction globale pour éditer une formation
+window.editFormation = async function(id) {
     try {
         const data = await apiCall(`/admin/formations/${id}`);
         if (data && data.success) {
@@ -364,7 +367,8 @@ async function editFormation(id) {
     }
 }
 
-async function toggleFormation(id) {
+// Fonction globale pour activer/désactiver une formation
+window.toggleFormation = async function(id) {
     try {
         const data = await apiCall(`/admin/formations/${id}/toggle`, { method: 'PATCH' });
         if (data && data.success) {
@@ -376,7 +380,8 @@ async function toggleFormation(id) {
     }
 }
 
-async function deleteFormation(id, title) {
+// Fonction globale pour supprimer une formation
+window.deleteFormation = async function(id, title) {
     if (!confirm(`Êtes-vous sûr de vouloir supprimer la formation "${title}" ?`)) {
         return;
     }
@@ -391,6 +396,9 @@ async function deleteFormation(id, title) {
         console.error('Erreur suppression formation:', error);
     }
 }
+
+// Fonction globale pour charger les formations
+window.loadFormations = loadFormations;
 
 // ===== TÉMOIGNAGES =====
 async function loadTestimonials() {
@@ -465,7 +473,8 @@ async function loadTestimonials() {
     }
 }
 
-async function approveTestimonial(id) {
+// Fonctions globales pour témoignages
+window.approveTestimonial = async function(id) {
     try {
         const data = await apiCall(`/testimonials/${id}/approve`, { method: 'PUT' });
         if (data && data.success) {
@@ -477,7 +486,7 @@ async function approveTestimonial(id) {
     }
 }
 
-async function rejectTestimonial(id) {
+window.rejectTestimonial = async function(id) {
     try {
         const data = await apiCall(`/testimonials/${id}/reject`, { method: 'PUT' });
         if (data && data.success) {
@@ -558,7 +567,8 @@ async function loadContacts() {
     }
 }
 
-async function markContactAsRead(id) {
+// Fonction globale pour marquer contact comme lu
+window.markContactAsRead = async function(id) {
     try {
         const data = await apiCall(`/contact/${id}/read`, { method: 'PUT' });
         if (data && data.success) {
@@ -633,11 +643,12 @@ async function loadUsers() {
     }
 }
 
-function openUserModal() {
+// Fonctions globales pour utilisateurs
+window.openUserModal = function() {
     document.getElementById('userModal').classList.add('show');
 }
 
-function closeUserModal() {
+window.closeUserModal = function() {
     document.getElementById('userModal').classList.remove('show');
 }
 
@@ -671,7 +682,8 @@ async function handleUserSubmit(e) {
     }
 }
 
-async function toggleUser(id) {
+// Fonction globale pour activer/désactiver utilisateur
+window.toggleUser = async function(id) {
     try {
         const data = await apiCall(`/admin/users/${id}/toggle`, { method: 'PATCH' });
         if (data && data.success) {
@@ -735,6 +747,12 @@ async function loadStats() {
         container.innerHTML = '<p class="alert alert-danger">Erreur lors du chargement</p>';
     }
 }
+
+// Fonction globale pour charger les statistiques
+window.loadStats = loadStats;
+
+// Fonction globale pour logout
+window.logout = logout;
 
 // ===== UTILITAIRES =====
 function showAlert(containerId, message, type) {
